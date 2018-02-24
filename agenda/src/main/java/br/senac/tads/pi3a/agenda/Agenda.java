@@ -75,27 +75,29 @@ public class Agenda {
             try (Scanner console = new Scanner(System.in)) {
                 System.out.println("Digite o nome: ");
                 String nome = console.nextLine();
-            
-            p1.setNome(nome);
-            String strDtNascimento = "1970-05-15";
-            DateFormat formatadorData = new SimpleDateFormat("yyyy-MM-dd");
-            //Date dtNascimento = formatadorData.parse(strDtNascimento);
-            p1.setDtNascimento(formatadorData.parse(strDtNascimento));
+
+                p1.setNome(nome);
+                String strDtNascimento = "1970-05-15";
+                DateFormat formatadorData = new SimpleDateFormat("yyyy-MM-dd");
+                //Date dtNascimento = formatadorData.parse(strDtNascimento);
+                p1.setDtNascimento(formatadorData.parse(strDtNascimento));
             }
             agenda.incluir(p1);
             List<Pessoa> lista = agenda.consultar();
             for (Pessoa p : lista) {
                 System.out.println(p.getId() + ", " + p.getNome() + ", " + p.getDtNascimento());
             }
-            
+
         } catch (ClassNotFoundException | SQLException ex) {
             Logger.getLogger(Agenda.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ParseException ex) {
             Logger.getLogger(Agenda.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         for (int i = 0; i < 10; i++) {
-            System.out.println("Contador " + i);
+            
+                System.out.println("Contador " + i);
+            
         }
     }
 
