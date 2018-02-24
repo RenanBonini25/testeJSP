@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -71,11 +72,16 @@ public class Agenda {
         Agenda agenda = new Agenda();
         try {
             Pessoa p1 = new Pessoa();
-            p1.setNome("Joao Pessoa");
+            try (Scanner console = new Scanner(System.in)) {
+                System.out.println("Digite o nome: ");
+                String nome = console.nextLine();
+            
+            p1.setNome(nome);
             String strDtNascimento = "1970-05-15";
             DateFormat formatadorData = new SimpleDateFormat("yyyy-MM-dd");
             //Date dtNascimento = formatadorData.parse(strDtNascimento);
             p1.setDtNascimento(formatadorData.parse(strDtNascimento));
+            }
             agenda.incluir(p1);
             List<Pessoa> lista = agenda.consultar();
             for (Pessoa p : lista) {
