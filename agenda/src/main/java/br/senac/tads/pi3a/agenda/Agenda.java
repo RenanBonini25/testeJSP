@@ -1,5 +1,6 @@
 package br.senac.tads.pi3a.agenda;
 
+import com.mysql.jdbc.Statement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -49,21 +50,43 @@ public class Agenda {
         return lista;
     }
 
-    public void incluir(Pessoa p) throws ClassNotFoundException, SQLException {
+    public void incluir(Pessoa p, Contato email, Contato telefone) throws ClassNotFoundException, SQLException {
         String query = "INSERT INTO pessoa (nome, dtnascimento) VALUES (?, ?)";
+        String queryContato = "INSERT INTO contato (tipo, valor, idpessoa) VALUES (?, ?, ?)";
 
-        try (Connection conn = obterConexao();
-                PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = obterConexao()) {
+            conn.setAutoCommit(false);
 
-            stmt.setString(1, p.getNome());
-            String strDtNascimento = "1970-05-15";
-            DateFormat formatadorData = new SimpleDateFormat("yyyy-MM-dd");
-            Date dtNascimento = formatadorData.parse(strDtNascimento);
-            stmt.setDate(2, new java.sql.Date(p.getDtNascimento().getTime()));
+            try (PreparedStatement stmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+                stmt.setString(1, p.getNome());
+                stmt.setDate(2, new java.sql.Date(p.getDtNascimento().getTime()));
+                stmt.executeUpdate();
 
-            stmt.executeUpdate();
-        } catch (ParseException ex) {
-            Logger.getLogger(Agenda.class.getName()).log(Level.SEVERE, null, ex);
+                //tenta recuperar o ID gerado no banco de dados
+                try (ResultSet chaves = stmt.getGeneratedKeys()) {
+                    if (chaves.next()) {
+                        long idPessoa = chaves.getLong(1);
+                        
+                        try (PreparedStatement stmt2 = conn.prepareStatement(queryContato)) {
+                            stmt2.setInt(1, email.getTipo());
+                            stmt2.setString(2, email.getValor());
+                            stmt2.setLong(3, idPessoa);
+                            stmt2.executeUpdate();
+                        }
+                        try (PreparedStatement stmt3 = conn.prepareStatement(queryContato)) {
+                            stmt3.setInt(1, telefone.getTipo());
+                            stmt3.setString(2, telefone.getValor());
+                            stmt3.setLong(3, idPessoa);
+                            stmt3.executeUpdate();
+                        }
+                        conn.commit();
+                    }
+                }
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+
         }
 
     }
@@ -81,8 +104,15 @@ public class Agenda {
                 DateFormat formatadorData = new SimpleDateFormat("yyyy-MM-dd");
                 //Date dtNascimento = formatadorData.parse(strDtNascimento);
                 p1.setDtNascimento(formatadorData.parse(strDtNascimento));
+                Contato email = new Contato();
+                email.setTipo(1);
+                email.setValor("fulano@gmail.com");
+
+                Contato telefone = new Contato();
+                telefone.setTipo(2);
+                telefone.setValor("(11) 9999-9999");
+                agenda.incluir(p1, email, telefone);
             }
-            agenda.incluir(p1);
             List<Pessoa> lista = agenda.consultar();
             for (Pessoa p : lista) {
                 System.out.println(p.getId() + ", " + p.getNome() + ", " + p.getDtNascimento());
@@ -94,11 +124,6 @@ public class Agenda {
             Logger.getLogger(Agenda.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        for (int i = 0; i < 10; i++) {
-            
-                System.out.println("Contador " + i);
-            
-        }
     }
 
 }
