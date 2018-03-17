@@ -1,0 +1,40 @@
+package br.senac.tads.pi3a.agendaweb;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet (name = "ExemploServlet", urlPatterns = {"/xpto"})
+public class ExemploServlet extends HttpServlet{
+    
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response) 
+        throws ServletException, IOException {
+        
+        String mensagem = "Primeiro exemplo";
+        
+        try(PrintWriter out = response.getWriter()) {
+            response.setStatus(200);
+            response.setContentType("text/plain");
+            response.setCharacterEncoding("UTF-8");
+            
+            out.println("<!DOCTYPE html>");
+            out.println("<html>");
+            out.println("<meta charset=\"uft-8\">");
+            out.println("<title>ExemploServlet</title>");
+            out.println("</head");
+            out.println("<body>");
+            out.println("<h1 style=\"color: red\">" + mensagem + "</h1");
+            out.println("</body>");
+            out.println("</html>");
+            out.println(mensagem);
+            out.flush();
+        }
+        
+    }
+    
+}
